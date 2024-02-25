@@ -83,7 +83,7 @@ static void user_image_demo()
   lv_obj_align(img, LV_ALIGN_BOTTOM_RIGHT, -20, -20);
 
   lv_color_t bg_color = lv_palette_lighten(LV_PALETTE_LIGHT_BLUE, 5);
-    lv_color_t fg_color = lv_palette_darken(LV_PALETTE_BLUE, 4);
+  lv_color_t fg_color = lv_palette_darken(LV_PALETTE_BLUE, 4);
 
     lv_obj_t * qr = lv_qrcode_create(lv_scr_act(), 150, fg_color, bg_color);
 
@@ -162,6 +162,144 @@ static void user_image_demo()
 }
 #endif
 
+static lv_style_t style_radio;
+static lv_style_t style_radio_chk;
+static uint32_t active_index_1 = 1;
+static uint32_t active_index_2 = 0;
+
+static void radio_event_handler(lv_event_t * e)
+{
+    uint32_t * active_id = lv_event_get_user_data(e);
+    lv_obj_t * cont = lv_event_get_current_target(e);
+    lv_obj_t * act_cb = lv_event_get_target(e);
+    lv_obj_t * old_cb = lv_obj_get_child(cont, *active_id);
+
+    /*Do nothing if the container was clicked*/
+    if(act_cb == cont) return;
+
+    lv_obj_clear_state(old_cb, LV_STATE_CHECKED);   /*Uncheck the previous radio button*/
+    lv_obj_add_state(act_cb, LV_STATE_CHECKED);     /*Uncheck the current radio button*/
+
+    *active_id = lv_obj_get_index(act_cb);
+
+    LV_LOG_USER("Selected radio buttons: %d, %d", (int)active_index_1, (int)active_index_2);
+}
+
+
+static lv_obj_t *radiobutton_create(lv_obj_t * parent, const char * txt)
+{
+    lv_obj_t * obj = lv_checkbox_create(parent);
+    lv_checkbox_set_text(obj, txt);
+    lv_obj_add_flag(obj, LV_OBJ_FLAG_EVENT_BUBBLE);
+    lv_obj_add_style(obj, &style_radio, LV_PART_INDICATOR);
+    lv_obj_add_style(obj, &style_radio_chk, LV_PART_INDICATOR | LV_STATE_CHECKED);
+
+    return obj;
+}
+
+/**
+ * Checkboxes as radio buttons
+ */
+void control_system_layout(void)
+{
+    /* The idea is to enable `LV_OBJ_FLAG_EVENT_BUBBLE` on checkboxes and process the
+     * `LV_EVENT_CLICKED` on the container.
+     * A variable is passed as event user data where the index of the active
+     * radiobutton is saved */
+
+
+    lv_style_init(&style_radio);
+    lv_style_set_radius(&style_radio, LV_RADIUS_CIRCLE);
+
+    lv_style_init(&style_radio_chk);
+    lv_style_set_bg_img_src(&style_radio_chk, NULL);
+
+    uint32_t i;
+    char buf[32];
+
+    static lv_coord_t col_dsc[] = {57, 47, LV_GRID_TEMPLATE_LAST};
+    static lv_coord_t row_dsc[] = {23, 23, 23, 23, 32, 28, 32, 30, LV_GRID_TEMPLATE_LAST};
+
+    /*Create a container with grid*/
+    lv_obj_t * cont1 = lv_obj_create(lv_scr_act());
+    lv_obj_set_style_grid_column_dsc_array(cont1, col_dsc, 0);
+    lv_obj_set_style_grid_row_dsc_array(cont1, row_dsc, 0);
+    lv_obj_set_size(cont1, 150, 320);
+
+    lv_obj_add_event_cb(cont1, radio_event_handler, LV_EVENT_CLICKED, &active_index_1);
+
+
+    //lv_obj_center(cont);
+    lv_obj_set_layout(cont1, LV_LAYOUT_GRID);
+
+    lv_obj_t *cm_label = lv_label_create(cont1);
+    lv_label_set_text(cm_label, "Control Mode");
+
+    lv_obj_set_grid_cell(cm_label, LV_GRID_ALIGN_STRETCH, 0, 2,
+                             LV_GRID_ALIGN_STRETCH, 0, 1);
+
+    lv_obj_t *rbut = radiobutton_create(cont1, "Power");
+
+    lv_obj_set_grid_cell(rbut, LV_GRID_ALIGN_STRETCH, 0, 2,
+                             LV_GRID_ALIGN_STRETCH, 1, 1);
+
+    rbut = radiobutton_create(cont1, "Velocity");
+
+    lv_obj_set_grid_cell(rbut, LV_GRID_ALIGN_STRETCH, 0, 2,
+                             LV_GRID_ALIGN_STRETCH, 2, 1);
+
+    rbut = radiobutton_create(cont1, "Position");
+
+    lv_obj_set_grid_cell(rbut, LV_GRID_ALIGN_STRETCH, 0, 2,
+                             LV_GRID_ALIGN_STRETCH, 3, 1);
+
+    lv_obj_add_state(lv_obj_get_child(cont1, 1), LV_STATE_CHECKED);
+
+    lv_obj_t * btn1 = lv_btn_create(cont1);
+
+    lv_obj_set_grid_cell(btn1, LV_GRID_ALIGN_STRETCH, 0, 2,
+                            LV_GRID_ALIGN_STRETCH, 5, 1);
+    //lv_obj_add_event_cb(btn1, event_handler, LV_EVENT_ALL, NULL);
+    //lv_obj_align(btn1, LV_ALIGN_CENTER, 0, -40);
+
+    lv_obj_t * but_label = lv_label_create(btn1);
+    lv_label_set_text(but_label, "Zero Pos");
+    lv_obj_center(but_label);
+
+    lv_obj_t * sw_label = lv_label_create(cont1);
+    lv_label_set_text(sw_label, "Enable Motor");
+
+    lv_obj_set_grid_cell(sw_label, LV_GRID_ALIGN_STRETCH, 0, 1,
+                            LV_GRID_ALIGN_STRETCH, 7, 1);
+
+
+    lv_obj_t * sw = lv_switch_create(cont1);
+
+    lv_obj_set_grid_cell(sw, LV_GRID_ALIGN_STRETCH, 1, 1,
+                            LV_GRID_ALIGN_STRETCH, 7, 1);
+
+    //lv_obj_add_event_cb(sw, event_handler, LV_EVENT_ALL, NULL);
+
+
+
+    /*Make the first checkbox checked*/
+    lv_obj_add_state(lv_obj_get_child(cont1, 0), LV_STATE_CHECKED);
+
+    lv_obj_t * cont2 = lv_obj_create(lv_scr_act());
+    lv_obj_set_flex_flow(cont2, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_size(cont2, lv_pct(40), lv_pct(80));
+    lv_obj_set_x(cont2, lv_pct(50));
+    lv_obj_add_event_cb(cont2, radio_event_handler, LV_EVENT_CLICKED, &active_index_2);
+
+    for(i = 0; i < 3; i++) {
+        lv_snprintf(buf, sizeof(buf), "B %d", (int)i + 1);
+        radiobutton_create(cont2, buf);
+    }
+
+    /*Make the first checkbox checked*/
+    lv_obj_add_state(lv_obj_get_child(cont2, 0), LV_STATE_CHECKED);
+}
+
 int main(int argc, char **argv)
 {
   (void)argc; /*Unused*/
@@ -176,7 +314,7 @@ int main(int argc, char **argv)
 //  lv_example_switch_1();
 //  lv_example_calendar_1();
 //  lv_example_btnmatrix_2();
-//  lv_example_checkbox_1();
+//  lv_example_checkbox_2();
 //  lv_example_colorwheel_1();
 //  lv_example_chart_6();
 //  lv_example_table_2();
@@ -191,13 +329,15 @@ int main(int argc, char **argv)
 //  lv_example_flex_3();
 //  lv_example_label_1();
 
-  lv_demo_widgets();
+//  lv_demo_widgets();
 //  lv_demo_keypad_encoder();
 //  lv_demo_benchmark();
 //  lv_demo_stress();
 //  lv_demo_music();
 
 //  user_image_demo();
+
+  control_system_layout();
 
   while(1) {
     /* Periodically call the lv_task handler.
