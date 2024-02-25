@@ -218,7 +218,7 @@ void control_system_layout(void)
     char buf[32];
 
     static lv_coord_t col_dsc[] = {57, 47, LV_GRID_TEMPLATE_LAST};
-    static lv_coord_t row_dsc[] = {23, 23, 23, 23, 32, 28, 32, 30, LV_GRID_TEMPLATE_LAST};
+    static lv_coord_t row_dsc[] = {20, 24, 24, 24, 30, 28, 30, 34, LV_GRID_TEMPLATE_LAST};
 
     /*Create a container with grid*/
     lv_obj_t * cont1 = lv_obj_create(lv_scr_act());
@@ -234,6 +234,7 @@ void control_system_layout(void)
 
     lv_obj_t *cm_label = lv_label_create(cont1);
     lv_label_set_text(cm_label, "Control Mode");
+    lv_obj_set_style_text_font(cm_label, &lv_font_montserrat_16, 0);
 
     lv_obj_set_grid_cell(cm_label, LV_GRID_ALIGN_STRETCH, 0, 2,
                              LV_GRID_ALIGN_STRETCH, 0, 1);
@@ -267,15 +268,20 @@ void control_system_layout(void)
     lv_obj_center(but_label);
 
     lv_obj_t * sw_label = lv_label_create(cont1);
-    lv_label_set_text(sw_label, "Enable Motor");
+    lv_label_set_text(sw_label, "Motor Enable");
 
-    lv_obj_set_grid_cell(sw_label, LV_GRID_ALIGN_STRETCH, 0, 1,
+    lv_obj_set_grid_cell(sw_label, LV_GRID_ALIGN_STRETCH, 1, 1,
                             LV_GRID_ALIGN_STRETCH, 7, 1);
 
 
-    lv_obj_t * sw = lv_switch_create(cont1);
+    static lv_style_t style_pressed_color;
+    lv_style_init(&style_pressed_color);
+    lv_style_set_bg_color(&style_pressed_color, lv_palette_main(LV_PALETTE_DEEP_ORANGE));
 
-    lv_obj_set_grid_cell(sw, LV_GRID_ALIGN_STRETCH, 1, 1,
+    lv_obj_t * sw = lv_switch_create(cont1);
+    lv_obj_add_style(sw, &style_pressed_color, LV_PART_INDICATOR | LV_STATE_CHECKED);
+
+    lv_obj_set_grid_cell(sw, LV_GRID_ALIGN_STRETCH, 0, 1,
                             LV_GRID_ALIGN_STRETCH, 7, 1);
 
     //lv_obj_add_event_cb(sw, event_handler, LV_EVENT_ALL, NULL);
@@ -454,10 +460,12 @@ static void hal_init(void)
   //lv_indev_set_group(enc_indev, g);
 
   /* Set a cursor for the mouse */
+#if 0
   LV_IMG_DECLARE(mouse_cursor_icon);                   /*Declare the image file.*/
   lv_obj_t * cursor_obj = lv_img_create(lv_scr_act()); /*Create an image object for the cursor*/
   lv_img_set_src(cursor_obj, &mouse_cursor_icon);      /*Set the image source*/
   lv_indev_set_cursor(mouse_indev, cursor_obj);        /*Connect the image  object to the driver*/
+#endif
 }
 
 /**
