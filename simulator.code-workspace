@@ -62,12 +62,13 @@
 		"configurations": [
 			{
 				"name": "Debug LVGL demo with gdb",
-				"type": "node-terminal",
+				"type": "cppdbg",
 				"request": "launch",
-			        "command": "${workspaceFolder}/build/bin/demo",
+			        "program": "${workspaceFolder}/build/bin/demo",
 				"args": [],
 				"cwd": "${fileDirname}",
-				"preLaunchTask": "Build"
+				"preLaunchTask": "Build",
+				"MIMode" : "lldb"
 			},
 		],
 	},
