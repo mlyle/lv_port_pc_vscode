@@ -230,10 +230,12 @@ static void hal_init(void)
   lv_indev_drv_init(&indev_drv_2);
   indev_drv_2.type = LV_INDEV_TYPE_KEYPAD;
 
+#if 0
   /* mouse scroll wheel input device */
   static lv_indev_drv_t indev_drv_3;
   lv_indev_drv_init(&indev_drv_3);
   indev_drv_3.type = LV_INDEV_TYPE_ENCODER;
+#endif
 
   lv_group_t *g = lv_group_create();
   lv_group_set_default(g);
@@ -269,7 +271,7 @@ static void hal_init(void)
   indev_drv_2.read_cb = sdl_keyboard_read;
 
   // mousewheel_init();
-  indev_drv_3.read_cb = sdl_mousewheel_read;
+  // indev_drv_3.read_cb = sdl_mousewheel_read;
 
 #elif USE_X11
   lv_x11_init("LVGL Simulator Demo", DISP_HOR_RES, DISP_VER_RES);
@@ -307,9 +309,9 @@ static void hal_init(void)
   /* register input devices */
   lv_indev_t *mouse_indev = lv_indev_drv_register(&indev_drv_1);
   lv_indev_t *kb_indev = lv_indev_drv_register(&indev_drv_2);
-  lv_indev_t *enc_indev = lv_indev_drv_register(&indev_drv_3);
+  //lv_indev_t *enc_indev = lv_indev_drv_register(&indev_drv_3);
   lv_indev_set_group(kb_indev, g);
-  lv_indev_set_group(enc_indev, g);
+  //lv_indev_set_group(enc_indev, g);
 
   /* Set a cursor for the mouse */
   LV_IMG_DECLARE(mouse_cursor_icon);                   /*Declare the image file.*/
